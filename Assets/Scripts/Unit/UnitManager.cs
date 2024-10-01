@@ -27,5 +27,15 @@ public class UnitManager : MonoBehaviour
             Unit unit = unitObject.GetComponent<Unit>();
             unit.unitData = data;
         }
+
+        TurnManager turnManager = FindObjectOfType<TurnManager>();
+        if (turnManager != null)
+        {
+            turnManager.InitializeUnits();
+        }
+        else
+        {
+            Debug.LogError("TurnManager not found in the scene.");
+        }
     }
 }

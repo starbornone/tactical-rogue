@@ -25,7 +25,6 @@ public class HeightMapGenerator
     public float[,] GenerateHeightMap()
     {
         float[,] heightMap = new float[mapWidth, mapLength];
-
         System.Random prng = new System.Random(seed);
         Vector2[] octaveOffsets = new Vector2[octaves];
 
@@ -43,7 +42,6 @@ public class HeightMapGenerator
 
         float maxNoiseHeight = float.MinValue;
         float minNoiseHeight = float.MaxValue;
-
         float halfWidth = mapWidth / 2f;
         float halfLength = mapLength / 2f;
 
@@ -59,10 +57,8 @@ public class HeightMapGenerator
                 {
                     float sampleX = (x - halfWidth) / noiseScale * frequency + octaveOffsets[i].x;
                     float sampleY = (y - halfLength) / noiseScale * frequency + octaveOffsets[i].y;
-
                     float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
                     noiseHeight += perlinValue * amplitude;
-
                     amplitude *= persistence;
                     frequency *= lacunarity;
                 }

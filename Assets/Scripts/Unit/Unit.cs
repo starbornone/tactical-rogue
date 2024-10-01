@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Unit : MonoBehaviour
 {
@@ -29,23 +30,61 @@ public class Unit : MonoBehaviour
         }
 
         ActionData action = uiManager.selectedAction;
-        action.executeAction(this);
-
-        lastActionTimeUnitsCost = action.timeUnitsCost;
+        yield return StartCoroutine(ExecuteAction(action));
 
         uiManager.HideActionMenu();
     }
 
     IEnumerator AIPerformAction()
     {
-        ActionData action = ChooseAIAction();
-        action.executeAction(this);
-        lastActionTimeUnitsCost = action.timeUnitsCost;
-        yield return new WaitForSeconds(1f);
+        ActionData action = Actions.Wait;
+        yield return StartCoroutine(ExecuteAction(action));
     }
 
-    ActionData ChooseAIAction()
+    IEnumerator ExecuteAction(ActionData action)
     {
-        return Actions.Attack;
+        lastActionTimeUnitsCost = action.timeUnitsCost;
+
+        if (action.actionName == "Move")
+        {
+            yield return StartCoroutine(PlayerMoveAction());
+        }
+        else
+        {
+            action.executeAction(this);
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    public IEnumerator PlayerMoveAction()
+    {
+        UIManager uiManager = UIManager.Instance;
+        uiManager.ShowMovementIndicator();
+
+        GridManager gridManager = GridManager.Instance;
+        gridManager.SetUnitForMovement(this);
+
+        while (!gridManager.destinationSelected)
+        {
+            yield return null;
+        }
+
+        List<Node> path = gridManager.GetPath();
+        if (path != null && path.Count > 0)
+        {
+            GridMapGenerator mapGenerator = FindObjectOfType<GridMapGenerator>();
+            foreach (Node node in path)
+            {
+                int tileHeight = mapGenerator.GetTileHeight(node.x, node.y);
+                Vector3 targetPosition = new Vector3(node.x, tileHeight + 1, node.y);
+                transform.position = targetPosition;
+                unitData.map.x = node.x;
+                unitData.map.y = node.y;
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+
+        gridManager.ResetMovement();
+        uiManager.HideMovementIndicator();
     }
 }

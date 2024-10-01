@@ -26,13 +26,15 @@ public class GridMapGenerator : MonoBehaviour
 
     void Start()
     {
-        heightMapGenerator = new HeightMapGenerator(mapWidth, mapLength, minTileHeight, maxTileHeight);
-        heightMapGenerator.noiseScale = noiseScale;
-        heightMapGenerator.octaves = octaves;
-        heightMapGenerator.persistence = persistence;
-        heightMapGenerator.lacunarity = lacunarity;
-        heightMapGenerator.seed = seed;
-        heightMapGenerator.offset = offset;
+        heightMapGenerator = new HeightMapGenerator(mapWidth, mapLength, minTileHeight, maxTileHeight)
+        {
+            noiseScale = noiseScale,
+            octaves = octaves,
+            persistence = persistence,
+            lacunarity = lacunarity,
+            seed = seed,
+            offset = offset
+        };
 
         GenerateMap();
     }
@@ -56,6 +58,15 @@ public class GridMapGenerator : MonoBehaviour
                     if (y == tileHeight)
                     {
                         tileRenderer.material = topTileMaterial;
+
+                        Tile tileComponent = tile.AddComponent<Tile>();
+                        tileComponent.x = x;
+                        tileComponent.y = z;
+
+                        if (!tile.TryGetComponent<Collider>(out _))
+                        {
+                            tile.AddComponent<BoxCollider>();
+                        }
                     }
                     else
                     {
@@ -74,9 +85,6 @@ public class GridMapGenerator : MonoBehaviour
         {
             return Mathf.RoundToInt(heightMap[x, z]);
         }
-        else
-        {
-            return 0;
-        }
+        return 0;
     }
 }

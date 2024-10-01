@@ -7,20 +7,26 @@ public class TurnManager : MonoBehaviour
     public List<Unit> units = new List<Unit>();
     private Unit currentUnit;
 
+    private bool gameStarted = false;
+
     void Start()
     {
+        UnitManager.OnUnitsSpawned += OnUnitsReady;
+    }
+
+    void OnDestroy()
+    {
+        UnitManager.OnUnitsSpawned -= OnUnitsReady;
+    }
+
+    void OnUnitsReady()
+    {
+        Debug.Log("Units are ready, you can start the game now.");
     }
 
     public void InitializeUnits()
     {
         Unit[] allUnits = FindObjectsOfType<Unit>();
-        if (allUnits.Length == 0)
-        {
-            Debug.LogError("No units found in the scene.");
-            return;
-        }
-
-        units.Clear();
         units.AddRange(allUnits);
 
         foreach (Unit unit in units)
@@ -28,12 +34,19 @@ public class TurnManager : MonoBehaviour
             unit.unitData.remainingTimeUnits = 0;
         }
 
-        StartCoroutine(TurnLoop());
+        if (units.Count > 0)
+        {
+            StartCoroutine(TurnLoop());
+        }
+        else
+        {
+            Debug.LogError("No units available to take turns.");
+        }
     }
 
     IEnumerator TurnLoop()
     {
-        while (true)
+        while (gameStarted)
         {
             if (units.Count == 0)
             {
@@ -52,6 +65,7 @@ public class TurnManager : MonoBehaviour
             });
 
             currentUnit = units[0];
+
             yield return StartCoroutine(UnitTurn(currentUnit));
         }
     }
@@ -60,5 +74,11 @@ public class TurnManager : MonoBehaviour
     {
         yield return unit.PerformAction();
         unit.unitData.remainingTimeUnits += unit.lastActionTimeUnitsCost;
+    }
+
+    public void StartGame()
+    {
+        gameStarted = true;
+        InitializeUnits();
     }
 }

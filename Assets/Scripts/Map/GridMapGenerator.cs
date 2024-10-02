@@ -58,15 +58,6 @@ public class GridMapGenerator : MonoBehaviour
                     if (y == tileHeight)
                     {
                         tileRenderer.material = topTileMaterial;
-
-                        Tile tileComponent = tile.AddComponent<Tile>();
-                        tileComponent.x = x;
-                        tileComponent.y = z;
-
-                        if (!tile.TryGetComponent<Collider>(out _))
-                        {
-                            tile.AddComponent<BoxCollider>();
-                        }
                     }
                     else
                     {
@@ -79,12 +70,22 @@ public class GridMapGenerator : MonoBehaviour
         OnMapGenerated?.Invoke();
     }
 
+
     public int GetTileHeight(int x, int z)
     {
+        if (heightMap == null)
+        {
+            Debug.LogError("HeightMap not initialized. Make sure the map is generated before accessing height data.");
+            return 0;
+        }
+
         if (x >= 0 && x < mapWidth && z >= 0 && z < mapLength)
         {
             return Mathf.RoundToInt(heightMap[x, z]);
         }
+
+        Debug.LogError($"Invalid coordinates: ({x}, {z})");
         return 0;
     }
+
 }

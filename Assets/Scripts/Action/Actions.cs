@@ -2,7 +2,7 @@ using UnityEngine;
 
 public static class Actions
 {
-    public static ActionData Wait = new ActionData("Wait", 10, (unit) =>
+    public static ActionData Wait = new ActionData("Wait", 1, (unit) =>
     {
         Debug.Log($"{unit.unitData.name} is waiting.");
     });
@@ -17,10 +17,6 @@ public static class Actions
         if (unit.unitData.isPlayerControlled)
         {
             unit.StartCoroutine(unit.PlayerMoveAction());
-        }
-        else
-        {
-            Debug.Log($"{unit.unitData.name} is waiting (AI-controlled unit).");
         }
     });
 }

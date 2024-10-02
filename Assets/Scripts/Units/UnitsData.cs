@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public static class UnitsData
 {
@@ -32,14 +33,15 @@ public static class UnitsData
             leftHand = ItemsData.sword,
             rightHand = ItemsData.shield
         },
-        carriedItems = new List<Item> { ItemsData.healthPotion, ItemsData.rope },
+        carriedItems = new List<Item> { },
         map = new MapPosition
         {
             x = 5,
             y = 5,
         },
-        remainingTimeUnits = 30,
-        isPlayerControlled = true
+        remainingTimeUnits = 50,
+        maxTimeUnits = 50,
+        isPlayerControlled = false
     };
 
     public static UnitData sha = new UnitData
@@ -72,13 +74,14 @@ public static class UnitsData
             leftHand = ItemsData.sword,
             rightHand = ItemsData.shield
         },
-        carriedItems = new List<Item> { ItemsData.healthPotion, ItemsData.rope },
+        carriedItems = new List<Item> { },
         map = new MapPosition
         {
             x = 10,
             y = 7,
         },
-        remainingTimeUnits = 30,
+        remainingTimeUnits = 50,
+        maxTimeUnits = 50,
         isPlayerControlled = false
     };
 
@@ -112,13 +115,14 @@ public static class UnitsData
             leftHand = ItemsData.sword,
             rightHand = ItemsData.shield
         },
-        carriedItems = new List<Item> { ItemsData.healthPotion, ItemsData.rope },
+        carriedItems = new List<Item> { },
         map = new MapPosition
         {
             x = 13,
             y = 10
         },
-        remainingTimeUnits = 30,
+        remainingTimeUnits = 50,
+        maxTimeUnits = 50,
         isPlayerControlled = false
     };
 
@@ -152,13 +156,14 @@ public static class UnitsData
             leftHand = ItemsData.sword,
             rightHand = ItemsData.shield
         },
-        carriedItems = new List<Item> { ItemsData.healthPotion, ItemsData.rope },
+        carriedItems = new List<Item> { },
         map = new MapPosition
         {
             x = 16,
             y = 13
         },
-        remainingTimeUnits = 30,
+        remainingTimeUnits = 50,
+        maxTimeUnits = 50,
         isPlayerControlled = false
     };
 

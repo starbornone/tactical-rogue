@@ -13,6 +13,7 @@ public class UnitData
     public List<Item> carriedItems;
     public MapPosition map;
     public int remainingTimeUnits;
+    internal int maxTimeUnits;
     public int initiative;
     public bool isPlayerControlled;
 }

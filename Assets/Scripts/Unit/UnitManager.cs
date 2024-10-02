@@ -23,9 +23,17 @@ public class UnitManager : MonoBehaviour
     void SpawnUnits()
     {
         GridMapGenerator mapGenerator = FindObjectOfType<GridMapGenerator>();
+        GridManager gridManager = GridManager.Instance;
+
         if (mapGenerator == null)
         {
             Debug.LogError("Failed to find GridMapGenerator for unit spawning.");
+            return;
+        }
+
+        if (gridManager == null)
+        {
+            Debug.LogError("GridManager.Instance is null. Ensure GridManager is properly initialized.");
             return;
         }
 
@@ -35,7 +43,17 @@ public class UnitManager : MonoBehaviour
             int x = data.map.x;
             int z = data.map.y;
 
-            int tileHeight = mapGenerator.GetTileHeight(x, z);
+            int tileHeight;
+            try
+            {
+                tileHeight = mapGenerator.GetTileHeight(x, z);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error getting tile height for position ({x}, {z}): {e.Message}");
+                continue;
+            }
+
             Vector3 position = new Vector3(x, tileHeight + 1, z);
 
             GameObject unitObject = Instantiate(unitPrefab, position, Quaternion.identity);
@@ -47,9 +65,19 @@ public class UnitManager : MonoBehaviour
             else
             {
                 Debug.LogError("Failed to find Unit component on unitPrefab.");
+                continue;
             }
 
             Debug.Log($"Unit {data.name} spawned at position {position}");
+
+            try
+            {
+                gridManager.SetNodeWalkable(x, z, false);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error setting node walkable for unit {data.name} at ({x}, {z}): {e.Message}");
+            }
         }
 
         OnUnitsSpawned?.Invoke();

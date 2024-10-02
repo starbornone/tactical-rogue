@@ -1,5 +1,6 @@
-[System.Serializable]
-public class Attributes
+using Unity.Entities;
+
+public struct AttributesComponent : IComponentData
 {
     public int strength;
     public int dexterity;

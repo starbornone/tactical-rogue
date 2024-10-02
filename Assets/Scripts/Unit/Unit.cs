@@ -6,9 +6,26 @@ public class Unit : MonoBehaviour
 {
     public UnitData unitData;
     public int lastActionTimeUnitsCost;
+    public List<IUnitBehavior> behaviors = new List<IUnitBehavior>();
+
+    void Start()
+    {
+        if (!unitData.isPlayerControlled)
+        {
+            behaviors.Add(new PickupItemBehavior());
+            behaviors.Add(new WaitBehavior());
+        }
+
+        GridManager.Instance.SetNodeWalkable(unitData.map.x, unitData.map.y, false);
+    }
 
     public IEnumerator PerformAction()
     {
+        if (unitData.remainingTimeUnits <= 0)
+        {
+            yield break;
+        }
+
         if (unitData.isPlayerControlled)
         {
             yield return StartCoroutine(PlayerPerformAction());
@@ -30,29 +47,95 @@ public class Unit : MonoBehaviour
         }
 
         ActionData action = uiManager.selectedAction;
-        yield return StartCoroutine(ExecuteAction(action));
+        yield return ExecuteAction(action);
 
         uiManager.HideActionMenu();
     }
 
     IEnumerator AIPerformAction()
     {
-        ActionData action = Actions.Wait;
-        yield return StartCoroutine(ExecuteAction(action));
-    }
+        IUnitBehavior selectedBehavior = null;
+        int highestPriority = int.MinValue;
 
-    IEnumerator ExecuteAction(ActionData action)
-    {
-        lastActionTimeUnitsCost = action.timeUnitsCost;
-
-        if (action.actionName == "Move")
+        foreach (IUnitBehavior behavior in behaviors)
         {
-            yield return StartCoroutine(PlayerMoveAction());
+            if (behavior.IsApplicable(this) && behavior.Priority > highestPriority)
+            {
+                highestPriority = behavior.Priority;
+                selectedBehavior = behavior;
+            }
+        }
+
+        if (selectedBehavior != null)
+        {
+            yield return selectedBehavior.Execute(this);
         }
         else
         {
-            action.executeAction(this);
-            yield return new WaitForSeconds(1f);
+            yield return ExecuteAction(Actions.Wait);
+        }
+    }
+
+    public IEnumerator ExecuteAction(ActionData action)
+    {
+        lastActionTimeUnitsCost = action.timeUnitsCost;
+
+        if (unitData.remainingTimeUnits < lastActionTimeUnitsCost)
+        {
+            yield break;
+        }
+
+        unitData.remainingTimeUnits -= lastActionTimeUnitsCost;
+        action.executeAction(this);
+        yield return new WaitForSeconds(1f);
+    }
+
+    public IEnumerator MoveToPosition(int x, int y)
+    {
+        GridManager gridManager = GridManager.Instance;
+        GridMapGenerator mapGenerator = FindObjectOfType<GridMapGenerator>();
+
+        Node currentNode = gridManager.GetNodeAtPosition(unitData.map.x, unitData.map.y);
+        Node targetNode = gridManager.GetNodeAtPosition(x, y);
+
+        if (!targetNode.walkable)
+        {
+            yield break;
+        }
+
+        List<Node> path = Pathfinding.FindPath(gridManager.grid, currentNode, targetNode);
+
+        if (path != null && path.Count > 0)
+        {
+            gridManager.SetNodeWalkable(currentNode.x, currentNode.y, true);
+
+            foreach (Node node in path)
+            {
+                if (unitData.remainingTimeUnits <= 0)
+                {
+                    break;
+                }
+
+                if (!node.walkable)
+                {
+                    break;
+                }
+
+                int tileHeight = mapGenerator.GetTileHeight(node.x, node.y);
+                Vector3 targetPosition = new Vector3(node.x, node.height + 1, node.y);
+                transform.position = targetPosition;
+                unitData.map.x = node.x;
+                unitData.map.y = node.y;
+
+                unitData.remainingTimeUnits -= 1;
+
+                gridManager.SetNodeWalkable(currentNode.x, currentNode.y, true);
+                gridManager.SetNodeWalkable(node.x, node.y, false);
+
+                currentNode = node;
+
+                yield return new WaitForSeconds(0.1f);
+            }
         }
     }
 
@@ -73,18 +156,60 @@ public class Unit : MonoBehaviour
         if (path != null && path.Count > 0)
         {
             GridMapGenerator mapGenerator = FindObjectOfType<GridMapGenerator>();
+            Node currentNode = gridManager.GetNodeAtPosition(unitData.map.x, unitData.map.y);
+
+            gridManager.SetNodeWalkable(currentNode.x, currentNode.y, true);
+
             foreach (Node node in path)
             {
+                if (unitData.remainingTimeUnits <= 0)
+                {
+                    break;
+                }
+
+                if (!node.walkable)
+                {
+                    break;
+                }
+
                 int tileHeight = mapGenerator.GetTileHeight(node.x, node.y);
                 Vector3 targetPosition = new Vector3(node.x, tileHeight + 1, node.y);
                 transform.position = targetPosition;
                 unitData.map.x = node.x;
                 unitData.map.y = node.y;
+
+                unitData.remainingTimeUnits -= 1;
+
+                gridManager.SetNodeWalkable(currentNode.x, currentNode.y, true);
+                gridManager.SetNodeWalkable(node.x, node.y, false);
+
+                currentNode = node;
+
                 yield return new WaitForSeconds(0.1f);
             }
         }
 
         gridManager.ResetMovement();
         uiManager.HideMovementIndicator();
+    }
+
+    public bool HasHealingItem()
+    {
+        foreach (Item item in unitData.carriedItems)
+        {
+            if (item.id == "healthPotion")
+                return true;
+        }
+        return false;
+    }
+
+    public void UseHealingItemOn(Unit target)
+    {
+        Item healthPotion = unitData.carriedItems.Find(item => item.id == "healthPotion");
+        if (healthPotion != null)
+        {
+            unitData.carriedItems.Remove(healthPotion);
+            target.unitData.attributes.stamina += 10;
+        }
     }
 }

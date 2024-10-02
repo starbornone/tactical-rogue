@@ -16,10 +16,10 @@ public class ItemManager : MonoBehaviour
         GridMapGenerator mapGenerator = FindObjectOfType<GridMapGenerator>();
         List<Item> itemsToSpawn = new List<Item>
         {
-            ItemsData.sword,
-            ItemsData.shield,
             ItemsData.healthPotion,
-            ItemsData.rope
+            ItemsData.healthPotion,
+            ItemsData.healthPotion,
+            ItemsData.healthPotion
         };
 
         List<Vector2Int> occupiedPositions = new List<Vector2Int>();

@@ -9,6 +9,20 @@ public class TurnManager : MonoBehaviour
 
     private bool gameStarted = false;
 
+    public static TurnManager Instance;
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void Start()
     {
         UnitManager.OnUnitsSpawned += OnUnitsReady;
@@ -31,7 +45,7 @@ public class TurnManager : MonoBehaviour
 
         foreach (Unit unit in units)
         {
-            unit.unitData.remainingTimeUnits = 0;
+            unit.unitData.remainingTimeUnits = unit.unitData.maxTimeUnits;
         }
 
         if (units.Count > 0)
@@ -54,17 +68,36 @@ public class TurnManager : MonoBehaviour
                 yield break;
             }
 
+            bool allUnitsDepleted = true;
+            foreach (Unit unit in units)
+            {
+                if (unit.unitData.remainingTimeUnits > 0)
+                {
+                    allUnitsDepleted = false;
+                    break;
+                }
+            }
+
+            if (allUnitsDepleted)
+            {
+                foreach (Unit unit in units)
+                {
+                    unit.unitData.remainingTimeUnits = unit.unitData.maxTimeUnits;
+                }
+                continue;
+            }
+
             units.Sort((a, b) =>
             {
-                int compare = a.unitData.remainingTimeUnits.CompareTo(b.unitData.remainingTimeUnits);
-                if (compare == 0)
-                {
-                    compare = b.unitData.initiative.CompareTo(a.unitData.initiative);
-                }
-                return compare;
+                return b.unitData.remainingTimeUnits.CompareTo(a.unitData.remainingTimeUnits);
             });
 
             currentUnit = units[0];
+
+            if (currentUnit.unitData.remainingTimeUnits <= 0)
+            {
+                continue;
+            }
 
             yield return StartCoroutine(UnitTurn(currentUnit));
         }
@@ -73,7 +106,6 @@ public class TurnManager : MonoBehaviour
     IEnumerator UnitTurn(Unit unit)
     {
         yield return unit.PerformAction();
-        unit.unitData.remainingTimeUnits += unit.lastActionTimeUnitsCost;
     }
 
     public void StartGame()

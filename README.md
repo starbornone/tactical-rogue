@@ -2,6 +2,11 @@
 
 Tactical Rogue is a tactical game where characters engage in simultaneous, grid-based combat and explore procedurally generated environments. This will use a flexible, component-oriented system to encourage emergent gameplay. The aim is to allow characters to interact with both enemies and the terrain in creative ways.
 
+## Packages
+
+- **TextMesh Pro**: TextMesh Pro is a set of Unity tools for 2D and 3D text. <https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/TextMeshPro/index.html>
+- **Entities**: The Entities package provides a data-oriented implementation of the Entity Component System (ECS) architecture. <https://docs.unity3d.com/Packages/com.unity.entities@1.3/manual/index.html>
+
 ## Features
 
 (Everything is a TODO at this stage.)

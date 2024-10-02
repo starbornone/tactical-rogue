@@ -9,7 +9,7 @@ public class GridManager : MonoBehaviour
     public int width;
     public int height;
 
-    private Node[,] grid;
+    public Node[,] grid;
     private Unit movingUnit;
     public bool destinationSelected = false;
     private List<Node> path;
@@ -19,7 +19,6 @@ public class GridManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            InitializeGrid();
         }
         else
         {
@@ -27,19 +26,44 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        GridMapGenerator mapGenerator = FindObjectOfType<GridMapGenerator>();
+        if (mapGenerator != null)
+        {
+            mapGenerator.OnMapGenerated += InitializeGrid;
+        }
+        else
+        {
+            Debug.LogError("GridMapGenerator not found. Make sure it's in the scene.");
+        }
+    }
+
     void InitializeGrid()
     {
-        width = 48;
-        height = 48;
+        GridMapGenerator mapGenerator = FindObjectOfType<GridMapGenerator>();
+        if (mapGenerator == null)
+        {
+            Debug.LogError("GridMapGenerator not found during grid initialization.");
+            return;
+        }
+
+        width = mapGenerator.mapWidth;
+        height = mapGenerator.mapLength;
+
         grid = new Node[width, height];
 
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                grid[x, y] = new Node(x, y, true);
+                int tileHeight = mapGenerator.GetTileHeight(x, y);
+                bool walkable = true;
+                grid[x, y] = new Node(x, y, tileHeight, walkable);
             }
         }
+
+        Debug.Log("Grid initialized after map generation.");
     }
 
     public void SetUnitForMovement(Unit unit)
@@ -70,5 +94,27 @@ public class GridManager : MonoBehaviour
         movingUnit = null;
         destinationSelected = false;
         path = null;
+    }
+
+    public Node GetNodeAtPosition(int x, int y)
+    {
+        if (x >= 0 && x < width && y >= 0 && y < height)
+            return grid[x, y];
+        return null;
+    }
+
+    public void SetNodeWalkable(int x, int y, bool walkable)
+    {
+        if (x >= 0 && x < width && y >= 0 && y < height)
+        {
+            if (grid[x, y] != null)
+            {
+                grid[x, y].walkable = walkable;
+            }
+            else
+            {
+                Debug.LogError($"Node at position ({x}, {y}) is null.");
+            }
+        }
     }
 }

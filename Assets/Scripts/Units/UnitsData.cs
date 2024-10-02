@@ -39,8 +39,11 @@ public static class UnitsData
             x = 5,
             y = 5,
         },
-        remainingTimeUnits = 50,
-        maxTimeUnits = 50,
+        timeUnits = new TimeUnits
+        {
+            remaining = 50,
+            maximum = 50
+        },
         isPlayerControlled = false
     };
 
@@ -80,8 +83,11 @@ public static class UnitsData
             x = 10,
             y = 7,
         },
-        remainingTimeUnits = 50,
-        maxTimeUnits = 50,
+        timeUnits = new TimeUnits
+        {
+            remaining = 50,
+            maximum = 50
+        },
         isPlayerControlled = false
     };
 
@@ -121,8 +127,11 @@ public static class UnitsData
             x = 13,
             y = 10
         },
-        remainingTimeUnits = 50,
-        maxTimeUnits = 50,
+        timeUnits = new TimeUnits
+        {
+            remaining = 50,
+            maximum = 50
+        },
         isPlayerControlled = false
     };
 
@@ -162,8 +171,11 @@ public static class UnitsData
             x = 16,
             y = 13
         },
-        remainingTimeUnits = 50,
-        maxTimeUnits = 50,
+        timeUnits = new TimeUnits
+        {
+            remaining = 50,
+            maximum = 50
+        },
         isPlayerControlled = false
     };
 

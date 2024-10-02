@@ -21,7 +21,7 @@ public class Unit : MonoBehaviour
 
     public IEnumerator PerformAction()
     {
-        if (unitData.remainingTimeUnits <= 0)
+        if (unitData.timeUnits.remaining <= 0)
         {
             yield break;
         }
@@ -80,12 +80,12 @@ public class Unit : MonoBehaviour
     {
         lastActionTimeUnitsCost = action.timeUnitsCost;
 
-        if (unitData.remainingTimeUnits < lastActionTimeUnitsCost)
+        if (unitData.timeUnits.remaining < lastActionTimeUnitsCost)
         {
             yield break;
         }
 
-        unitData.remainingTimeUnits -= lastActionTimeUnitsCost;
+        unitData.timeUnits.remaining -= lastActionTimeUnitsCost;
         action.executeAction(this);
         yield return new WaitForSeconds(1f);
     }
@@ -111,7 +111,7 @@ public class Unit : MonoBehaviour
 
             foreach (Node node in path)
             {
-                if (unitData.remainingTimeUnits <= 0)
+                if (unitData.timeUnits.remaining <= 0)
                 {
                     break;
                 }
@@ -127,7 +127,7 @@ public class Unit : MonoBehaviour
                 unitData.map.x = node.x;
                 unitData.map.y = node.y;
 
-                unitData.remainingTimeUnits -= 1;
+                unitData.timeUnits.remaining -= 1;
 
                 gridManager.SetNodeWalkable(currentNode.x, currentNode.y, true);
                 gridManager.SetNodeWalkable(node.x, node.y, false);
@@ -162,7 +162,7 @@ public class Unit : MonoBehaviour
 
             foreach (Node node in path)
             {
-                if (unitData.remainingTimeUnits <= 0)
+                if (unitData.timeUnits.remaining <= 0)
                 {
                     break;
                 }
@@ -178,7 +178,7 @@ public class Unit : MonoBehaviour
                 unitData.map.x = node.x;
                 unitData.map.y = node.y;
 
-                unitData.remainingTimeUnits -= 1;
+                unitData.timeUnits.remaining -= 1;
 
                 gridManager.SetNodeWalkable(currentNode.x, currentNode.y, true);
                 gridManager.SetNodeWalkable(node.x, node.y, false);

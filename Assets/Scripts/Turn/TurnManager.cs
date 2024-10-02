@@ -45,7 +45,7 @@ public class TurnManager : MonoBehaviour
 
         foreach (Unit unit in units)
         {
-            unit.unitData.remainingTimeUnits = unit.unitData.maxTimeUnits;
+            unit.unitData.timeUnits.remaining = unit.unitData.timeUnits.maximum;
         }
 
         if (units.Count > 0)
@@ -71,7 +71,7 @@ public class TurnManager : MonoBehaviour
             bool allUnitsDepleted = true;
             foreach (Unit unit in units)
             {
-                if (unit.unitData.remainingTimeUnits > 0)
+                if (unit.unitData.timeUnits.remaining > 0)
                 {
                     allUnitsDepleted = false;
                     break;
@@ -82,19 +82,19 @@ public class TurnManager : MonoBehaviour
             {
                 foreach (Unit unit in units)
                 {
-                    unit.unitData.remainingTimeUnits = unit.unitData.maxTimeUnits;
+                    unit.unitData.timeUnits.remaining = unit.unitData.timeUnits.maximum;
                 }
                 continue;
             }
 
             units.Sort((a, b) =>
             {
-                return b.unitData.remainingTimeUnits.CompareTo(a.unitData.remainingTimeUnits);
+                return b.unitData.timeUnits.remaining.CompareTo(a.unitData.timeUnits.remaining);
             });
 
             currentUnit = units[0];
 
-            if (currentUnit.unitData.remainingTimeUnits <= 0)
+            if (currentUnit.unitData.timeUnits.remaining <= 0)
             {
                 continue;
             }

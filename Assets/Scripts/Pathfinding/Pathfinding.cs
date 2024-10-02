@@ -5,48 +5,41 @@ public static class Pathfinding
 {
     public static List<Node> FindPath(Node[,] grid, Node startNode, Node targetNode)
     {
-        List<Node> openSet = new List<Node>();
+        PriorityQueue<Node> openSet = new PriorityQueue<Node>();
         HashSet<Node> closedSet = new HashSet<Node>();
-        openSet.Add(startNode);
+        openSet.Enqueue(startNode, 0);
+
+        startNode.gCost = 0;
+        startNode.hCost = GetHeuristic(startNode, targetNode);
 
         while (openSet.Count > 0)
         {
-            Node currentNode = openSet[0];
-
-            for (int i = 1; i < openSet.Count; i++)
-            {
-                if (openSet[i].fCost < currentNode.fCost ||
-                    openSet[i].fCost == currentNode.fCost && openSet[i].hCost < currentNode.hCost)
-                {
-                    currentNode = openSet[i];
-                }
-            }
-
-            openSet.Remove(currentNode);
-            closedSet.Add(currentNode);
+            Node currentNode = openSet.Dequeue();
 
             if (currentNode == targetNode)
             {
                 return RetracePath(startNode, targetNode);
             }
 
+            closedSet.Add(currentNode);
+
             foreach (Node neighbor in GetNeighbors(grid, currentNode))
             {
                 if (!neighbor.walkable || closedSet.Contains(neighbor))
-                {
                     continue;
-                }
 
-                int newMovementCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor);
-                if (newMovementCostToNeighbor < neighbor.gCost || !openSet.Contains(neighbor))
+                float movementCost = GetMovementCost(currentNode, neighbor);
+                float tentativeGCost = currentNode.gCost + movementCost;
+
+                if (tentativeGCost < neighbor.gCost || !openSet.Contains(neighbor))
                 {
-                    neighbor.gCost = newMovementCostToNeighbor;
-                    neighbor.hCost = GetDistance(neighbor, targetNode);
+                    neighbor.gCost = tentativeGCost;
+                    neighbor.hCost = GetHeuristic(neighbor, targetNode);
                     neighbor.parent = currentNode;
 
                     if (!openSet.Contains(neighbor))
                     {
-                        openSet.Add(neighbor);
+                        openSet.Enqueue(neighbor, neighbor.fCost);
                     }
                 }
             }
@@ -80,10 +73,8 @@ public static class Pathfinding
         {
             for (int y = -1; y <= 1; y++)
             {
-                if (Mathf.Abs(x) == Mathf.Abs(y))
-                {
+                if (x == 0 && y == 0)
                     continue;
-                }
 
                 int checkX = node.x + x;
                 int checkY = node.y + y;
@@ -98,10 +89,23 @@ public static class Pathfinding
         return neighbors;
     }
 
-    static int GetDistance(Node nodeA, Node nodeB)
+    static float GetMovementCost(Node fromNode, Node toNode)
     {
-        int dstX = Mathf.Abs(nodeA.x - nodeB.x);
-        int dstY = Mathf.Abs(nodeA.y - nodeB.y);
-        return dstX + dstY;
+        bool isDiagonal = (fromNode.x != toNode.x) && (fromNode.y != toNode.y);
+        float baseCost = isDiagonal ? Mathf.Sqrt(2f) : 1f;
+        float heightDifference = Mathf.Abs(toNode.height - fromNode.height);
+        float heightCost = heightDifference;
+
+        return baseCost + heightCost;
     }
+
+    static float GetHeuristic(Node nodeA, Node nodeB)
+    {
+        float dx = Mathf.Abs(nodeA.x - nodeB.x);
+        float dy = Mathf.Abs(nodeA.y - nodeB.y);
+        float dz = Mathf.Abs(nodeA.height - nodeB.height);
+
+        return Mathf.Sqrt(dx * dx + dy * dy) + dz;
+    }
+
 }
